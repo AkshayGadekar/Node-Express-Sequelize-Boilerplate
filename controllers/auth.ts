@@ -6,7 +6,7 @@ import ErrorResponse from './../utils/errorResponse'
 import { decrypt, processValidation, successResponse, tokenCookie, expireTokenCookie } from '../utils'
 import User from './../models/User'
 import Token from '../models/Token'
-import asyncHandler from '../middleware/async'
+import asyncHandler from '../middlewares/async'
 
 export const register = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const ValidationSchema = z.object({
@@ -25,9 +25,7 @@ export const register = asyncHandler(async (req: Request, res: Response, next: N
     const user = await User.create(body)
     const { access_token, refresh_token } = await user.generateTokens()
 
-    if (cookie_enabled) {
-        tokenCookie(res, { access_token, refresh_token })
-    }
+    if (cookie_enabled) tokenCookie(res, { access_token, refresh_token })
     
     return successResponse(res, { data: { access_token, refresh_token, expires_in } })
 })
@@ -49,9 +47,7 @@ export const login = asyncHandler(async (req: Request, res: Response, next: Next
 
     const { access_token, refresh_token } = await user.generateTokens()
 
-    if (cookie_enabled) {
-        tokenCookie(res, { access_token, refresh_token })
-    }
+    if (cookie_enabled) tokenCookie(res, { access_token, refresh_token })
     
     return successResponse(res, { data: { access_token, refresh_token, expires_in } })
 })
@@ -76,9 +72,7 @@ export const logout = asyncHandler(async (req: Request, res: Response, next: Nex
     const deletedCount = await Token.destroy({ where: { user_id, secret } })
     //if (deletedCount !== 2) throw new ErrorResponse({ message: 'Token is no longer in use.' }, 422) // table must've related refresh token too, so 2 count, result should be 0 or 2
 
-    if (cookie_enabled) {
-        expireTokenCookie(res)
-    }
+    if (cookie_enabled) expireTokenCookie(res)
 
     return successResponse(res)
 })
@@ -106,9 +100,7 @@ export const generateToken = asyncHandler(async (req: Request, res: Response, ne
     
     const { access_token, refresh_token } = await user.generateTokens()
 
-    if (cookie_enabled) {
-        tokenCookie(res, { access_token, refresh_token })
-    }
+    if (cookie_enabled) tokenCookie(res, { access_token, refresh_token })
     
     return successResponse(res, { data: { access_token, refresh_token, expires_in } })
 })

@@ -10,7 +10,7 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import hpp from 'hpp'
 import { sequelize } from './config/sequelize'
-import errorHandler from './middleware/error'
+import errorHandler from './middlewares/error'
 import AuthRoutes from './routes/auth'
 import { api_prefix } from './config'
 import { rateLimitOptions, corsOptions } from './utils'
@@ -25,9 +25,6 @@ app.use(cookieParser())
 
 // File uploading
 app.use(fileupload())
-
-// Sanitize data
-app.use(mongoSanitize())
 
 // Set security headers
 app.use(helmet())
