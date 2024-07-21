@@ -2,7 +2,7 @@
 Start building your next project on top of this boilerplate. A starter project for quickly building RESTful APIs using Node.js, Express, and Sequelize.
 
 ## Quick Start
-To install the project, follow these steps:
+To install the project, follow these steps.
 Clone the repo:
 
 ```bash
@@ -18,7 +18,13 @@ Install the dependencies:
 ```bash
 npm install
 ```
-Add the correct database credentials in .env file.
+Set the environment variables:
+
+```bash
+cp .env.example .env
+
+# open .env and add your database credentials
+```
 Run the migrations and seed:
 ```bash
 npm run migrate
@@ -28,3 +34,4 @@ Start the server:
 ```bash
 npm run dev
 ```
+    
