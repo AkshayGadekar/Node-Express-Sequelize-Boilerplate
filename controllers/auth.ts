@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import jwt from 'jsonwebtoken'
 import { jwt_expire_access_token as expires_in, jwt_secret, cookie_enabled } from '../config'
-import ErrorResponse from './../utils/errorResponse'
-import { decrypt, processValidation, successResponse, tokenCookie, expireTokenCookie } from '../utils'
+import Error from './../utils/errorResponse'
+import { decrypt, processValidation, success, tokenCookie, expireTokenCookie } from '../utils'
 import User from './../models/User'
 import Token from '../models/Token'
 import asyncHandler from '../middlewares/async'
@@ -20,14 +20,14 @@ export const register = asyncHandler(async (req: Request, res: Response, next: N
 
     // check if user exists
     const userExist = await User.count({ where: { email: body.email } })
-    if (userExist) throw new ErrorResponse({ message: 'User exists.' }, 422)
+    if (userExist) throw new Error({ message: 'User exists.' }, 422)
 
     const user = await User.create(body)
     const { access_token, refresh_token } = await user.generateTokens()
 
     if (cookie_enabled) tokenCookie(res, { access_token, refresh_token })
     
-    return successResponse(res, { data: { access_token, refresh_token, expires_in } })
+    return success(res, { data: { access_token, refresh_token, expires_in } })
 })
 
 export const login = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
@@ -40,16 +40,16 @@ export const login = asyncHandler(async (req: Request, res: Response, next: Next
     processValidation(result)
 
     const user = await User.findOne({ where: { email: body.email } })
-    if (!user) throw new ErrorResponse({ message: 'Sorry, user does not exist.' }, 404)
+    if (!user) throw new Error({ message: 'Sorry, user does not exist.' }, 404)
 
     const passwordMatched = await user.matchPassword(body.password)
-    if (!passwordMatched) throw new ErrorResponse({ message: 'Invalid credentials' }, 422)
+    if (!passwordMatched) throw new Error({ message: 'Invalid credentials' }, 422)
 
     const { access_token, refresh_token } = await user.generateTokens()
 
     if (cookie_enabled) tokenCookie(res, { access_token, refresh_token })
     
-    return successResponse(res, { data: { access_token, refresh_token, expires_in } })
+    return success(res, { data: { access_token, refresh_token, expires_in } })
 })
 
 export const logout = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
@@ -61,20 +61,20 @@ export const logout = asyncHandler(async (req: Request, res: Response, next: Nex
         token = req.cookies.access_token
     }
 
-    if (!token) throw new ErrorResponse({ message: 'Please pass the bearer token.' }, 422)
+    if (!token) throw new Error({ message: 'Please pass the bearer token.' }, 422)
 
     const decoded = jwt.verify(token, jwt_secret) as jwt.JwtPayload
     const tokenType = decoded.type
-    if (tokenType !== 'access_token') throw new ErrorResponse({ message: 'Invalid token.' }, 422)
+    if (tokenType !== 'access_token') throw new Error({ message: 'Invalid token.' }, 422)
 
     const user_id = decrypt(decoded.data)
     const secret = decoded.secret
     const deletedCount = await Token.destroy({ where: { user_id, secret } })
-    //if (deletedCount !== 2) throw new ErrorResponse({ message: 'Token is no longer in use.' }, 422) // table must've related refresh token too, so 2 count, result should be 0 or 2
+    //if (deletedCount !== 2) throw new Error({ message: 'Token is no longer in use.' }, 422) // table must've related refresh token too, so 2 count, result should be 0 or 2
 
     if (cookie_enabled) expireTokenCookie(res)
 
-    return successResponse(res)
+    return success(res)
 })
 
 export const generateToken = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
@@ -88,23 +88,23 @@ export const generateToken = asyncHandler(async (req: Request, res: Response, ne
     const token = body.refresh_token
     const decoded = jwt.verify(token, jwt_secret) as jwt.JwtPayload
     const tokenType = decoded.type
-    if (tokenType !== 'refresh_token') throw new ErrorResponse({ message: 'Invalid token.' }, 422)
+    if (tokenType !== 'refresh_token') throw new Error({ message: 'Invalid token.' }, 422)
     
     const user_id = decrypt(decoded.data)
     const user = await User.findByPk(user_id)
-    if (!user) throw new ErrorResponse({ message: 'Invalid token.' }, 422)
+    if (!user) throw new Error({ message: 'Invalid token.' }, 422)
     
     const secret = decoded.secret
     const deletedCount = await Token.destroy({ where: { user_id, secret } })
-    if (deletedCount !== 2) throw new ErrorResponse({ message: 'Token is no longer in use.' }, 422) // table must've related access token too, so 2 count, result should be 0 or 2
+    if (deletedCount !== 2) throw new Error({ message: 'Token is no longer in use.' }, 422) // table must've related access token too, so 2 count, result should be 0 or 2
     
     const { access_token, refresh_token } = await user.generateTokens()
 
     if (cookie_enabled) tokenCookie(res, { access_token, refresh_token })
     
-    return successResponse(res, { data: { access_token, refresh_token, expires_in } })
+    return success(res, { data: { access_token, refresh_token, expires_in } })
 })
 
 export const authUser = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    return successResponse(res, { data: req.user })
+    return success(res, { data: req.user })
 })

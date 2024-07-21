@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from 'express'
 import { Options } from 'express-rate-limit'
 import { CorsOptions } from 'cors'
 import { show_single_error_for_each_field, validation_message, algorithm, encryption_key, initialization_vector, jwt_expire_access_token, jwt_expire_refresh_token, rate_limit_windowMS, rate_limit_max_requests, cookie_enabled } from '../config'
-import ErrorResponse from './errorResponse'
+import Error from './errorResponse'
 
 export const processValidation = (parsedResult: z.SafeParseReturnType<Record<string, any>, Record<string, any>>, showSingleErrorForEachField = show_single_error_for_each_field) => {
     if (parsedResult.success) return
@@ -30,7 +30,7 @@ export const processValidation = (parsedResult: z.SafeParseReturnType<Record<str
 
     const errorsObj = Object.fromEntries(errorsMap)
     
-    throw new ErrorResponse({ message: validation_message, data: errorsObj }, 422)
+    throw new Error({ message: validation_message, data: errorsObj }, 422)
 }
 
 export const tokenCookie = (res: Response, token: { access_token: string, refresh_token: string }) => {
@@ -85,7 +85,7 @@ export const decrypt = (text: string) => {
     return decrypted
 }
 
-export const successResponse = (res: Response, response?: { message?: string, data?: any }, statusCode: number = 200) => {
+export const success = (res: Response, response?: { message?: string, data?: any }, statusCode: number = 200) => {
     let message = response?.message || 'Success'
     let data = response?.data || {}
 
@@ -121,7 +121,7 @@ export const rateLimitOptions = {
     windowMs: rate_limit_windowMS, // 10 mins
     max: rate_limit_max_requests,
     handler: (req: Request, res: Response, next: NextFunction, options: Options) => {
-      throw new ErrorResponse({ message: options.message }, options.statusCode)
+      throw new Error({ message: options.message }, options.statusCode)
     }
 }
 
