@@ -126,7 +126,7 @@ JWT_EXPIRE_ACCESS_TOKEN_IN_DAYS=5
 JWT_EXPIRE_REFRESH_TOKEN_IN_DAYS=7
 
 # Should HTTP cookie be enabled
-COOKIE_ENABLED=true
+COOKIE_ENABLED=false
 
 # Rate Limit
 # How long to remember requests for, in minutes
@@ -166,10 +166,12 @@ MYSQL_PASSWORD=password
 `GET /api/v1/auth/logout` - logout\
 `GET /api/v1/auth` - Auth User details
 
+To require authentication for certain routes, you can use the `middlewares/auth.ts` middleware.
+
 ## Error Handling
 The app has a centralized error handling mechanism.
 
-`middlewares/error.ts` errorHandler cathes errors thrown using `utils/ErrorResponse` class or `next(Error)`
+If function is async, wrap it with with `middlewares/async.ts` middleware to catch the errors into `middlewares/error.ts`. `middlewares/error.ts` errorHandler cathes errors thrown using `utils/ErrorResponse` class or `next(Error)`
 ```bash
 import Error from './../utils/errorResponse'
 
