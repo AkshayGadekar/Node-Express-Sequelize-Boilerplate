@@ -1,23 +1,15 @@
 import { Request, Response, NextFunction } from 'express'
-import { z } from 'zod'
 import jwt from 'jsonwebtoken'
 import { jwt_expire_access_token as expires_in, jwt_secret, cookie_enabled } from '../config'
-import Error from './../utils/errorResponse'
-import { decrypt, processValidation, success, tokenCookie, expireTokenCookie } from '../utils'
+import { Error } from './../utils'
+import { decrypt, success, tokenCookie, expireTokenCookie } from '../utils'
 import User from './../models/User'
 import Token from '../models/Token'
-import asyncHandler from '../middlewares/async'
+import { asyncHandler } from '../middlewares'
 
 export const register = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    const ValidationSchema = z.object({
-        name: z.string({ required_error: 'name is required.' }).min(2, 'name must be of at least 2 characters.').max(50, 'name must be of maximum 50 characters.'),
-        email: z.string({ required_error: 'email is required.' }).email({ message: 'email must be a valid email.' }),
-        password: z.string({ required_error: 'password is required.' }).min(5, 'password must be of at least 5 characters.').max(40, 'password must be of maximum 40 characters.').regex(new RegExp("^(?=.*[1-9\W])(?=.*[a-zA-Z]).+$"), 'password must contain letters with at least one number or symbol.')
-    })
     const body = req.body
-    const result = ValidationSchema.safeParse(body)
-    processValidation(result)
-
+    
     // check if user exists
     const userExist = await User.count({ where: { email: body.email } })
     if (userExist) throw new Error({ message: 'User exists.' }, 422)
@@ -31,13 +23,7 @@ export const register = asyncHandler(async (req: Request, res: Response, next: N
 })
 
 export const login = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    const ValidationSchema = z.object({
-        email: z.string({ required_error: 'email is required.' }).email({ message: 'email must be a valid email.' }),
-        password: z.string({ required_error: 'password is required.' }).min(5, 'password must be of at least 5 characters.').max(40, 'password must be of maximum 40 characters.')
-    })
     const body = req.body
-    const result = ValidationSchema.safeParse(body)
-    processValidation(result)
 
     const user = await User.findOne({ where: { email: body.email } })
     if (!user) throw new Error({ message: 'Sorry, user does not exist.' }, 404)
@@ -78,12 +64,7 @@ export const logout = asyncHandler(async (req: Request, res: Response, next: Nex
 })
 
 export const generateToken = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    const ValidationSchema = z.object({
-        refresh_token: z.string({ required_error: 'Refesh token is required.' })
-    })
     const body = req.body
-    const result = ValidationSchema.safeParse(body)
-    processValidation(result)
 
     const token = body.refresh_token
     const decoded = jwt.verify(token, jwt_secret) as jwt.JwtPayload

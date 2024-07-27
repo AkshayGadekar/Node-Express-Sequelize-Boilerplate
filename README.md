@@ -154,6 +154,7 @@ MYSQL_PASSWORD=password
  |--routes\         # Routes
  |--seeders\        # Seeders
  |--utils\          # Utility classes and functions
+ |--validations\    # Request data validation schemas
  |--.env            # Environment variables
  |--index.ts        # App entry point
 ```
@@ -171,9 +172,10 @@ To require authentication for certain routes, you can use the `middlewares/auth.
 ## Error Handling
 The app has a centralized error handling mechanism.
 
-If function is async, wrap it with with `middlewares/async.ts` middleware to catch the errors into `middlewares/error.ts`. `middlewares/error.ts` errorHandler cathes errors thrown using `utils/ErrorResponse` class or `next(Error)`
+If function is async, wrap it with with `middlewares/async.ts` middleware to catch the errors into `middlewares/error.ts`.
+`middlewares/error.ts` errorHandler catches errors thrown using `utils/ErrorResponse` class or `next(Error)`. One can import `ErrorResponse` class as `Error` directly from utils. 
 ```bash
-import Error from './../utils/errorResponse'
+import { Error } from './../utils'
 
 # throw error
 throw new Error({ message: 'User not found.' }, 404)

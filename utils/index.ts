@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from 'express'
 import { Options } from 'express-rate-limit'
 import { CorsOptions } from 'cors'
 import { show_single_error_for_each_field, validation_message, algorithm, encryption_key, initialization_vector, jwt_expire_access_token, jwt_expire_refresh_token, rate_limit_windowMS, rate_limit_max_requests, cookie_enabled } from '../config'
-import Error from './errorResponse'
+import { ErrorResponse as Error } from './errorResponse'
 
 export const processValidation = (parsedResult: z.SafeParseReturnType<Record<string, any>, Record<string, any>>, showSingleErrorForEachField = show_single_error_for_each_field) => {
     if (parsedResult.success) return
@@ -129,3 +129,5 @@ export const corsOptions: CorsOptions = {
     origin: true,
     credentials: cookie_enabled
 }
+
+export { ErrorResponse as Error } from './errorResponse'

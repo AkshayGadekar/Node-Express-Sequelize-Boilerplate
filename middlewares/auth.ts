@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
-import asyncHandler from './async'
+import { asyncHandler } from './async'
 import { decrypt, getTokenPayload } from '../utils'
 import { jwt_secret } from '../config'
-import Error from '../utils/errorResponse'
+import { Error } from '../utils'
 import User from '../models/User'
 import Token from '../models/Token'
 
 interface RequestWithUser extends Request { user: Record<string, any> } 
 
-const auth = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+export const auth = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     let token: string = ''
     const authorization = req.headers.authorization
     if (authorization && authorization.startsWith('Bearer')) {
@@ -47,4 +47,3 @@ const auth = asyncHandler(async (req: Request, res: Response, next: NextFunction
 
 })
 
-export default auth
