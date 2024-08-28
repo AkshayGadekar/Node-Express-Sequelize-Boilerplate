@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import { jwt_expire_access_token as expires_in, jwt_secret, cookie_enabled } from '../config'
-import { Error } from './../utils'
-import { decrypt, success, tokenCookie, expireTokenCookie } from '../utils'
+import { Error, decrypt, success, tokenCookie, expireTokenCookie } from '../utils'
 import User from './../models/User'
 import Token from '../models/Token'
 import { asyncHandler } from '../middlewares'
@@ -87,5 +86,5 @@ export const generateToken = asyncHandler(async (req: Request, res: Response, ne
 })
 
 export const authUser = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    return success(res, { data: req.user })
+    return success(res, { data: { name: req.user!.name, email: req.user!.email } })
 })

@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import { asyncHandler } from './async'
-import { decrypt, getTokenPayload } from '../utils'
 import { jwt_secret } from '../config'
-import { Error } from '../utils'
+import { Error, decrypt, getTokenPayload } from '../utils'
 import User from '../models/User'
 import Token from '../models/Token'
 
@@ -26,7 +25,7 @@ export const auth = asyncHandler(async (req: Request, res: Response, next: NextF
         if (tokenType !== 'access_token') return next(new Error({ message: 'Invalid token.' }, 401))
 
         const user_id = decrypt(decoded.data)
-        const user = await User.findByPk(user_id, { attributes: ['name', 'email'] })
+        const user = await User.findByPk(user_id, { attributes: ['id', 'name', 'email'] })
         if (!user) throw new Error({ message: 'Invalid token.' }, 401)
         
         const secret = decoded.secret
