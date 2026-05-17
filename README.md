@@ -75,7 +75,7 @@ npm run seed
 # Rollback the last seed 
 npm run seed:rollback
 
-# Rollback till particular seed e.g. XXXXXXXXXXXXXX-users.js
+# Rollback particular seed e.g. XXXXXXXXXXXXXX-users.js
 npm run seed:rollback -- --seed XXXXXXXXXXXXXX-users.js
 
 # Rollback all the seeds
